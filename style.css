@@ -6,3 +6,5 @@
 
 #callout{inset:auto 0 137px;font-size:18px}#callout small{font-size:9px}
 @media(max-height:650px) and (orientation:portrait){.stage-top{inset:7px 7px auto}}
+
+#startup{position:fixed;inset:0;z-index:40;background:#fff4d8;display:grid;place-content:center;text-align:center;padding:24px}#retryLoad{border:0;border-radius:16px;padding:16px;background:#ffad8d;font:inherit}
