@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),E=require('./engine.js');let count=0;function test(name,fn){fn();count++;console.log('PASS '+name);}function sim(s,n,dt=.01){for(let i=0;i<n;i++)E.step(s,dt);}function crossing(s,q){s.q=q;s.hold=q===1;s.gate.progress=.99999;E.step(s,.001);}
+test('ready state cannot move or score',()=>{const s=E.create();s.hold=true;sim(s,100);assert.equal(s.q,0);assert.equal(s.score,0);});
+test('start creates a round tutorial gate with three hearts',()=>{const s=E.create();E.start(s);assert.equal(s.gate.target,0);assert.equal(s.lives,3);assert(s.gate.duration>=4);});
+test('hold stretches and release rounds out with clamped shape',()=>{const s=E.create();E.start(s);s.hold=true;sim(s,150);assert.equal(s.q,1);s.hold=false;sim(s,150);assert.equal(s.q,0);});
+test('dimensions shrink width and grow height',()=>{assert(E.size(0).w>E.size(1).w);assert(E.size(0).h<E.size(1).h);});
+test('centered round shape scores once',()=>{const s=E.create();E.start(s);crossing(s,0);assert.equal(s.passed,1);assert.equal(s.score,17);assert.equal(s.perfects,1);sim(s,20);assert.equal(s.passed,1);});
+test('wrong shape loses one heart and breaks chain',()=>{const s=E.create();E.start(s);s.chain=5;crossing(s,1);assert.equal(s.lives,2);assert.equal(s.chain,0);assert.equal(s.score,0);});
+test('both dimensions must fit',()=>{const s=E.create();E.start(s);assert(E.fits(0,s.gate));assert(!E.fits(1,s.gate));s.gate.w=70;s.gate.h=170;assert(E.fits(1,s.gate));assert(!E.fits(0,s.gate));});
+test('next gates teach middle then tall shapes',()=>{const s=E.create();E.start(s);crossing(s,0);sim(s,90);assert.equal(s.gate.target,.55);crossing(s,.55);sim(s,90);assert.equal(s.gate.target,1);});
+test('three bumps end the run once and stop input',()=>{const s=E.create();E.start(s);for(let i=0;i<3;i++){crossing(s,s.gate.target<.5?1:0);if(i<2)sim(s,90);}assert.equal(s.phase,'over');assert.equal(s.hold,false);assert.equal(s.events.filter(e=>e.type==='over').length,1);const snap=JSON.stringify(s);sim(s,100);assert.equal(JSON.stringify(s),snap);});
+test('invalid deltas do not move the simulation',()=>{const s=E.create();E.start(s);for(const dt of [NaN,Infinity,0,-1])E.step(s,dt);assert.equal(s.time,0);E.step(s,2);assert.equal(s.time,.05);});
+test('fresh run does not inherit shape, score or hearts',()=>{const s=E.create(4);s.q=1;s.score=100;s.lives=1;const fresh=E.create(4);assert.equal(fresh.q,0);assert.equal(fresh.score,0);assert.equal(fresh.lives,3);});
+test('100 seeded 60-gate runs stay reachable with real hold/release dynamics',()=>{for(let seed=1;seed<=100;seed++){const s=E.create(seed);E.start(s);for(let frames=0;s.passed<60&&s.phase==='playing'&&frames<40000;frames++){const target=s.gate.target;s.hold=s.q<target;E.step(s,.01);}assert.equal(s.passed,60,'seed '+seed);assert.equal(s.lives,3);assert(s.gate.duration>=1.9);assert(s.bestChain>=60);}});
+console.log(count+' engine checks passed');
