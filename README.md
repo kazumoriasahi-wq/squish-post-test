@@ -9,3 +9,5 @@ Browser v1.0. Records and audio preference are stored only under squish_post_v1.
 Preview: node serve.cjs (127.0.0.1:4195). Tests: node tests.cjs; node music-tests.cjs. Twelve engine checks include 100 seeded 60-delivery runs using actual hold/release dynamics. Four audio lifecycle checks cover gesture startup, one scheduler, mute, and cancellation of pending startup.
 
 Production: index.html, style.css, engine.js, music.js, game.js. GUIDE.html includes device test steps. Submission ZIP excludes development scripts and tests.
+
+Update v1.0.1: target opening is now large, opaque and separate from the courier. Constant-scale dark aperture with a thick high-contrast rim; same-size dotted comparison guide around the player and a numeric arrival countdown. Gameplay, saved-record schema and controls are unchanged.
